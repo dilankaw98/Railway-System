@@ -25,6 +25,7 @@ import Swal from "sweetalert2";
 import timetableDummyData from "../../../../../../data/timetableDummy";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaCreditCard, FaHandPointer } from "react-icons/fa";
+import type { PageProps } from "next";
 
 interface RfidData {
   id: string;
@@ -34,26 +35,11 @@ interface RfidData {
   [key: string]: any;
 }
 
-export interface PageProps {
-  params: {
-    timeTable: string;
-    ticketClass: string;
-    ticket: string;
-    quantity: string;
-  };
-}
-
-export default function TicketDetailsPage({
-  params,
-}: {
-  params: {
-    timeTable: string;
-    ticketClass: string;
-    ticket: string;
-    quantity: string;
-  };
-}) {
-  const { timeTable, ticketClass, ticket, quantity } = params;
+export default function TicketDetailsPage(props: PageProps) {
+  const [timeTable, setTimeTable] = useState("");
+  const [ticketClass, setTicketClass] = useState("");
+  const [ticket, setTicket] = useState("");
+  const [quantity, setQuantity] = useState("");
   const router = useRouter();
   const [showBubble, setShowBubble] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
@@ -62,6 +48,19 @@ export default function TicketDetailsPage({
   const [userId, setUserId] = useState<string | null>(null);
   const [lastProcessedId, setLastProcessedId] = useState<string | null>(null);
   const [isWaitingForCard, setIsWaitingForCard] = useState(false);
+
+  useEffect(() => {
+    const initializeParams = async () => {
+      const resolvedParams = await props.params;
+      setTimeTable(resolvedParams.timeTable);
+      setTicketClass(resolvedParams.ticketClass);
+      setTicket(resolvedParams.ticket);
+      if (resolvedParams.quantity) {
+        setQuantity(resolvedParams.quantity);
+      }
+    };
+    initializeParams();
+  }, [props.params]);
 
   const destination = timetableDummyData.find(
     (dest) => dest.name === timeTable
@@ -101,7 +100,6 @@ export default function TicketDetailsPage({
           if (rfidEntries.length > 0) {
             const lastEntry = rfidEntries[rfidEntries.length - 1];
             setLastProcessedId(lastEntry[0] as string);
-            console.log("Initial last RFID ID:", lastEntry[0]);
           }
         }
       } catch (error) {

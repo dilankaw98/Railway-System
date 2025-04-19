@@ -1,22 +1,22 @@
+"use client";
+
 import Card from "@/components/card";
 import timetableDummyData from "@/data/timetableDummy";
 import Link from "next/link";
 import { FaTrain, FaChair, FaStar, FaInfoCircle } from "react-icons/fa";
 
-
 export interface PageProps {
-  params: {
+  params: Promise<{
     timeTable: string;
     ticketClass: string;
-  };
+  }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ timeTable: string; ticketClass: string }>;
-}) {
+export default async function TicketClassPage(props: PageProps) {
+  const { params, searchParams } = props;
   const { timeTable, ticketClass } = await params;
+  const resolvedSearchParams = await searchParams;
   console.log("TimeTable:", timeTable);
   console.log("TicketClass:", ticketClass);
 

@@ -1,20 +1,21 @@
+"use client";
+
 import Card from "@/components/card";
 import timetableDummyData from "@/data/timetableDummy";
 import Link from "next/link";
 
 
 export interface PageProps {
-  params: {
+  params: Promise<{
     timeTable: string;
-  };
+  }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ timeTable: string }>;
-}) {
+export default async function TimeTablePage(props: PageProps) {
+  const { params, searchParams } = props;
   const { timeTable } = await params;
+  const resolvedSearchParams = await searchParams;
   console.log("TimeTable:", timeTable);
 
   const data = timetableDummyData.find(

@@ -8,22 +8,12 @@ import { db } from "../../../../../../firebaseconfig";
 import { doc, getDoc, updateDoc, addDoc, collection } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import type { PageProps } from "next";
 
-
-export interface PageProps {
-  params: {
-    timeTable: string;
-    ticketClass: string;
-    ticket: string;
-  };
-}
-
-export default function Page({
-  params,
-}: {
-  params: { timeTable: string; ticketClass: string; ticket: string };
-}) {
-  const { timeTable, ticketClass, ticket } = params;
+export default function TicketQuantityPage(props: PageProps) {
+  const [timeTable, setTimeTable] = useState("");
+  const [ticketClass, setTicketClass] = useState("");
+  const [ticket, setTicket] = useState("");
   const [layout, setLayout] = useState<string>("default");
   const [input, setInput] = useState<string>("");
   const keyboard = useRef<any>(null);
@@ -31,17 +21,23 @@ export default function Page({
   const [userId, setUserId] = useState("");
 
   useEffect(() => {
-    console.log(timeTable, ticketClass, ticket);
-  }, [timeTable, ticketClass, ticket]);
+    const initializeParams = async () => {
+      const resolvedParams = await props.params;
+      setTimeTable(resolvedParams.timeTable);
+      setTicketClass(resolvedParams.ticketClass);
+      setTicket(resolvedParams.ticket);
+    };
+    initializeParams();
+  }, [props.params]);
 
   const onChange = (input: string) => {
     const numericInput = input.replace(/\D/g, "");
     setInput(numericInput);
   };
 
-  const onKeyPress = async (button: string) => {
+  const onKeyPress = (button: string) => {
     if (button === "{shift}" || button === "{lock}") handleShift();
-    if (button === "{enter}") await handleEnter();
+    if (button === "{enter}") handleEnter();
   };
 
   const handleShift = () => {
@@ -49,7 +45,7 @@ export default function Page({
     setLayout(newLayoutName);
   };
 
-  const handleEnter = async () => {
+  const handleEnter = () => {
     if (!input || parseInt(input) <= 0) {
       Swal.fire({
         title: "Invalid Input",
@@ -61,12 +57,9 @@ export default function Page({
     }
 
     try {
-      console.log(timeTable, ticketClass, ticket, input);
-      const link = document.createElement('a');
-      link.href = `/destination/${timeTable}/${ticketClass}/${ticket}/${input}`;
-      link.click();
+      router.push(`/destination/${timeTable}/${ticketClass}/${ticket}/${input}`);
     } catch (error) {
-      console.error("Booking error:", error);
+      console.error("Navigation error:", error);
       Swal.fire({
         title: "Error",
         text: "Something went wrong. Please try again.",
@@ -78,7 +71,6 @@ export default function Page({
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("id");
-    console.log(storedUserId);
     if (storedUserId) {
       setUserId(storedUserId);
     }
